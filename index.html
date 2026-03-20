@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Referee App</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Tab Bar -->
+    <nav id="tab-bar">
+        <button class="tab-btn active" data-screen="matches-screen">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/></svg>
+            <span>Zápasy</span>
+        </button>
+        <button class="tab-btn" data-screen="roster-screen">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <span>Hráči</span>
+        </button>
+        <button class="tab-btn" data-screen="stats-screen">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            <span>Statistiky</span>
+        </button>
+    </nav>
+
+    <!-- Screen: Match List -->
+    <div id="matches-screen" class="screen active">
+        <header>
+            <h1>Zápasy</h1>
+            <button id="btn-new-match" class="btn-primary-small">+ Nový zápas</button>
+        </header>
+        <div id="match-list" class="list-container"></div>
+    </div>
+
+    <!-- Screen: New Match -->
+    <div id="new-match-screen" class="screen">
+        <header>
+            <button class="btn-back" data-back="matches-screen">&larr;</button>
+            <h1>Nový zápas</h1>
+        </header>
+        <form id="new-match-form" class="form-container">
+            <div class="form-group">
+                <label>Domácí</label>
+                <input type="text" id="home-team" required placeholder="Název domácího týmu">
+            </div>
+            <div class="form-group">
+                <label>Hosté</label>
+                <input type="text" id="away-team" required placeholder="Název hostujícího týmu">
+            </div>
+            <div class="form-group">
+                <label>Délka poločasu (min)</label>
+                <input type="number" id="half-duration" value="35" min="1" max="45" required>
+            </div>
+            <div class="form-group">
+                <label>Datum</label>
+                <input type="date" id="match-date" required>
+            </div>
+            <div class="form-group">
+                <label>Kategorie</label>
+                <div id="category-suggestions" class="suggestions"></div>
+                <input type="text" id="match-category" placeholder="Např. Sezóna, Turnaj, Přátelák">
+            </div>
+            <div class="form-group">
+                <label>Soutěž / poznámka</label>
+                <input type="text" id="match-competition" placeholder="Např. Okresní přebor">
+            </div>
+            <button type="submit" class="btn-primary">Vytvořit zápas</button>
+        </form>
+    </div>
+
+    <!-- Screen: Live Match -->
+    <div id="live-match-screen" class="screen">
+        <header>
+            <button class="btn-back" id="btn-back-live">&larr;</button>
+            <h1 id="live-match-title">Zápas</h1>
+        </header>
+        <div class="live-container">
+            <!-- Score -->
+            <div id="live-score">
+                <div class="team-score">
+                    <span id="live-home-name" class="team-name">Domácí</span>
+                    <span id="live-home-goals" class="score-number">0</span>
+                </div>
+                <div class="score-separator">:</div>
+                <div class="team-score">
+                    <span id="live-away-name" class="team-name">Hosté</span>
+                    <span id="live-away-goals" class="score-number">0</span>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div id="timer-section">
+                <div id="half-indicator">1. poločas</div>
+                <div id="timer-display">00:00</div>
+                <div id="timer-controls">
+                    <button id="btn-start-timer" class="btn-timer btn-start">Start</button>
+                    <button id="btn-stop-timer" class="btn-timer btn-stop" disabled>Pauza</button>
+                </div>
+                <button id="btn-end-half" class="btn-secondary" disabled>Ukončit poločas</button>
+                <button id="btn-end-match" class="btn-danger" style="display:none">Ukončit zápas</button>
+            </div>
+
+            <!-- Goal Buttons -->
+            <div id="goal-section">
+                <p class="section-label">Zaznamenat gól:</p>
+                <div id="goal-buttons">
+                    <button id="btn-goal-home" class="btn-goal btn-goal-home" disabled>
+                        <span id="goal-home-name">Domácí</span>
+                    </button>
+                    <button id="btn-goal-away" class="btn-goal btn-goal-away" disabled>
+                        <span id="goal-away-name">Hosté</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Event Log -->
+            <div id="event-log-section">
+                <p class="section-label">Průběh zápasu:</p>
+                <div id="event-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen: Match Detail -->
+    <div id="match-detail-screen" class="screen">
+        <header>
+            <button class="btn-back" data-back="matches-screen">&larr;</button>
+            <h1>Zápis o utkání</h1>
+        </header>
+        <div id="match-detail-content" class="detail-container"></div>
+    </div>
+
+    <!-- Screen: Roster -->
+    <div id="roster-screen" class="screen">
+        <header>
+            <h1>Čechie Uhříněves</h1>
+            <button id="btn-add-player" class="btn-primary-small">+ Hráč</button>
+        </header>
+        <div id="roster-list" class="list-container"></div>
+    </div>
+
+    <!-- Screen: Stats -->
+    <div id="stats-screen" class="screen">
+        <header>
+            <h1>Statistiky střelců</h1>
+        </header>
+        <div id="stats-filter" class="filter-bar"></div>
+        <div id="stats-content" class="list-container"></div>
+    </div>
+
+    <!-- Modal: Goal Entry -->
+    <div id="goal-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h2 id="goal-modal-title">Gól</h2>
+            <p id="goal-modal-minute" class="modal-minute"></p>
+            <div id="goal-roster-section" style="display:none">
+                <p class="section-label">Vyber hráče (pro statistiky):</p>
+                <div id="goal-roster-list" class="roster-quick-list"></div>
+            </div>
+            <div class="form-group">
+                <label>Číslo dresu v tomto zápase</label>
+                <input type="number" id="goal-jersey" min="0" max="99" placeholder="Číslo" inputmode="numeric">
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-goal-cancel" class="btn-secondary">Zrušit</button>
+                <button id="btn-goal-confirm" class="btn-primary">Potvrdit gól</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Player -->
+    <div id="player-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h2 id="player-modal-title">Nový hráč</h2>
+            <div class="form-group">
+                <label>Jméno a příjmení</label>
+                <input type="text" id="player-name" required placeholder="Jan Novák">
+            </div>
+            <div class="form-group">
+                <label>Obvyklé číslo dresu</label>
+                <input type="number" id="player-default-jersey" min="0" max="99" placeholder="Číslo" inputmode="numeric">
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-player-cancel" class="btn-secondary">Zrušit</button>
+                <button id="btn-player-delete" class="btn-danger" style="display:none">Smazat</button>
+                <button id="btn-player-save" class="btn-primary">Uložit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm -->
+    <div id="confirm-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h2 id="confirm-modal-title">Potvrzení</h2>
+            <p id="confirm-modal-text"></p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-no" class="btn-secondary">Ne</button>
+                <button id="btn-confirm-yes" class="btn-primary">Ano</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>
