@@ -581,7 +581,6 @@ function openGoalModal(team) {
                 if (jersey) {
                     document.getElementById('goal-jersey').value = jersey;
                 }
-                document.getElementById('goal-jersey').focus();
             });
         });
     } else {
@@ -589,7 +588,10 @@ function openGoalModal(team) {
     }
 
     document.getElementById('goal-modal').style.display = 'flex';
-    document.getElementById('goal-jersey').focus();
+    // Only focus jersey input if no roster shown (opponent team)
+    if (!isMyTeam || roster.length === 0) {
+        document.getElementById('goal-jersey').focus();
+    }
 }
 
 document.getElementById('btn-goal-cancel').addEventListener('click', closeGoalModal);
