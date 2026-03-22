@@ -106,6 +106,15 @@
                 <button id="btn-end-match" class="btn-danger" style="display:none">Ukončit zápas</button>
             </div>
 
+            <!-- Lineup Section -->
+            <div id="lineup-section" style="display:none">
+                <div class="lineup-header">
+                    <p class="section-label">Nominace:</p>
+                    <button id="btn-edit-lineup" class="btn-secondary-small">Upravit</button>
+                </div>
+                <div id="lineup-display"></div>
+            </div>
+
             <!-- Goal Buttons -->
             <div id="goal-section">
                 <p class="section-label">Zaznamenat gól:</p>
@@ -190,6 +199,18 @@
                 <button id="btn-player-cancel" class="btn-secondary">Zrušit</button>
                 <button id="btn-player-delete" class="btn-danger" style="display:none">Smazat</button>
                 <button id="btn-player-save" class="btn-primary">Uložit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Lineup -->
+    <div id="lineup-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h2>Nominace hráčů</h2>
+            <div id="lineup-player-list" class="lineup-list"></div>
+            <div class="modal-buttons">
+                <button id="btn-lineup-cancel" class="btn-secondary">Zrušit</button>
+                <button id="btn-lineup-save" class="btn-primary">Uložit</button>
             </div>
         </div>
     </div>

@@ -219,6 +219,7 @@ document.getElementById('new-match-form').addEventListener('submit', (e) => {
         status: 'created', // created, live, finished
         half: 1,
         events: [],
+        lineup: [], // [{playerId, jersey}]
         timerState: null // saved timer state for resuming
     };
     matches.push(match);
@@ -305,9 +306,96 @@ function updateLiveUI() {
     document.getElementById('btn-end-match').style.display =
         (match.half === 2 && !isRunning && timerElapsedBase > 0 && !isFinished) ? '' : 'none';
 
+    // Lineup section
+    renderLineupSection(match);
+
     // Event log
     renderEventLog(match);
 }
+
+function renderLineupSection(match) {
+    const section = document.getElementById('lineup-section');
+    const isMyTeam = match.homeTeam === MY_TEAM || match.awayTeam === MY_TEAM;
+
+    if (!isMyTeam || roster.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+    const display = document.getElementById('lineup-display');
+
+    if (!match.lineup || match.lineup.length === 0) {
+        display.innerHTML = '<span style="color:var(--text-dim);font-size:13px">Žádná nominace</span>';
+    } else {
+        display.innerHTML = match.lineup
+            .sort((a, b) => (a.jersey || 99) - (b.jersey || 99))
+            .map(entry => {
+                const player = getPlayerById(entry.playerId);
+                const name = player ? player.name.split(' ').pop() : '?';
+                return `<span class="lineup-chip"><span class="chip-jersey">${entry.jersey}</span><span class="chip-name">${name}</span></span>`;
+            }).join('');
+    }
+}
+
+function openLineupModal() {
+    const match = getCurrentMatch();
+    if (!match) return;
+
+    const container = document.getElementById('lineup-player-list');
+    const lineup = match.lineup || [];
+
+    container.innerHTML = roster
+        .sort((a, b) => (a.defaultJersey || 99) - (b.defaultJersey || 99))
+        .map(p => {
+            const entry = lineup.find(l => l.playerId === p.id);
+            const checked = entry ? 'checked' : '';
+            const jersey = entry ? entry.jersey : (p.defaultJersey || '');
+            return `
+                <label class="lineup-row ${checked ? 'checked' : ''}" data-player-id="${p.id}">
+                    <input type="checkbox" ${checked}>
+                    <span class="lineup-player-name">${p.name}</span>
+                    <input type="number" min="0" max="99" value="${jersey}" placeholder="#" inputmode="numeric">
+                </label>
+            `;
+        }).join('');
+
+    // Toggle checked class on checkbox change
+    container.querySelectorAll('.lineup-row input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            cb.closest('.lineup-row').classList.toggle('checked', cb.checked);
+        });
+    });
+
+    document.getElementById('lineup-modal').style.display = 'flex';
+}
+
+function saveLineup() {
+    const match = getCurrentMatch();
+    if (!match) return;
+
+    const rows = document.querySelectorAll('#lineup-player-list .lineup-row');
+    match.lineup = [];
+
+    rows.forEach(row => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        if (cb.checked) {
+            const playerId = row.dataset.playerId;
+            const jersey = parseInt(row.querySelector('input[type="number"]').value) || 0;
+            match.lineup.push({ playerId, jersey });
+        }
+    });
+
+    saveMatches();
+    document.getElementById('lineup-modal').style.display = 'none';
+    updateLiveUI();
+}
+
+document.getElementById('btn-edit-lineup').addEventListener('click', openLineupModal);
+document.getElementById('btn-lineup-save').addEventListener('click', saveLineup);
+document.getElementById('btn-lineup-cancel').addEventListener('click', () => {
+    document.getElementById('lineup-modal').style.display = 'none';
+});
 
 function renderEventLog(match) {
     const container = document.getElementById('event-log');
@@ -462,21 +550,32 @@ function openGoalModal(team) {
 
     if (isMyTeam && roster.length > 0) {
         rosterSection.style.display = '';
-        rosterList.innerHTML = roster
-            .sort((a, b) => (a.defaultJersey || 99) - (b.defaultJersey || 99))
-            .map(p => `
-                <button class="roster-quick-btn" data-player-id="${p.id}" data-jersey="${p.defaultJersey || ''}">
-                    <span class="jersey-num">${p.defaultJersey || '?'}</span>
+
+        // Use lineup if available, otherwise full roster
+        const hasLineup = match.lineup && match.lineup.length > 0;
+        const players = hasLineup
+            ? match.lineup
+                .sort((a, b) => (a.jersey || 99) - (b.jersey || 99))
+                .map(entry => ({
+                    id: entry.playerId,
+                    name: getPlayerById(entry.playerId)?.name || '?',
+                    jersey: entry.jersey
+                }))
+            : roster
+                .sort((a, b) => (a.defaultJersey || 99) - (b.defaultJersey || 99))
+                .map(p => ({ id: p.id, name: p.name, jersey: p.defaultJersey }));
+
+        rosterList.innerHTML = players.map(p => `
+                <button class="roster-quick-btn" data-player-id="${p.id}" data-jersey="${p.jersey || ''}">
+                    <span class="jersey-num">${p.jersey || '?'}</span>
                     <span class="player-short-name">${p.name}</span>
                 </button>
             `).join('');
 
         rosterList.querySelectorAll('.roster-quick-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Deselect all, highlight selected
                 rosterList.querySelectorAll('.roster-quick-btn').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
-                // Pre-fill jersey and store player ID
                 goalModalPlayerId = btn.dataset.playerId;
                 const jersey = btn.dataset.jersey;
                 if (jersey) {
