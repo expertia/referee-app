@@ -1,3 +1,15 @@
+// === iOS Keyboard: adjust modals to visible viewport ===
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        document.documentElement.style.setProperty(
+            '--vh', window.visualViewport.height + 'px'
+        );
+    });
+    document.documentElement.style.setProperty(
+        '--vh', window.visualViewport.height + 'px'
+    );
+}
+
 // === Data Store ===
 const Store = {
     get(key) {

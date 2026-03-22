@@ -601,7 +601,7 @@ header h1 {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    height: var(--vh, 100vh);
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: flex-end;
@@ -616,8 +616,15 @@ header h1 {
     padding: 24px 20px 32px;
     width: 100%;
     max-width: 400px;
-    max-height: 80vh;
+    max-height: calc(var(--vh, 100vh) * 0.8);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content .roster-quick-list {
+    flex-shrink: 1;
+    min-height: 0;
 }
 
 .modal-content h2 {
