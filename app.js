@@ -670,14 +670,23 @@ function renderMatchDetail() {
 
     const renderGoalList = (goals) => {
         if (goals.length === 0) return '<div style="color:var(--text-dim);font-size:13px;padding:8px 0">Žádné góly</div>';
-        return goals
-            .sort((a, b) => a.minute - b.minute)
-            .map(g => `
-                <div class="detail-goal-item">
-                    <span class="detail-goal-minute">${g.minute}'</span>
-                    <span class="detail-goal-player">${getPlayerName(g)}</span>
-                </div>
-            `).join('');
+
+        // Group goals by player (by playerId if available, otherwise by jersey)
+        const grouped = {};
+        goals.sort((a, b) => a.minute - b.minute).forEach(g => {
+            const key = g.playerId || `jersey-${g.jersey}`;
+            if (!grouped[key]) {
+                grouped[key] = { name: getPlayerName(g), minutes: [] };
+            }
+            grouped[key].minutes.push(g.minute);
+        });
+
+        return Object.values(grouped).map(g => `
+            <div class="detail-goal-item">
+                <span class="detail-goal-player">${g.name}</span>
+                <span class="detail-goal-minutes">${g.minutes.map(m => m + "'").join(', ')}</span>
+            </div>
+        `).join('');
     };
 
     document.getElementById('match-detail-content').innerHTML = `

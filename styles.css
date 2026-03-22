@@ -562,17 +562,19 @@ header h1 {
     font-size: 14px;
     padding: 6px 0;
     display: flex;
+    justify-content: space-between;
+    align-items: baseline;
     gap: 8px;
 }
 
-.detail-goal-minute {
-    color: var(--text-dim);
+.detail-goal-player {
     font-weight: 600;
-    min-width: 36px;
 }
 
-.detail-goal-player {
-    font-weight: 500;
+.detail-goal-minutes {
+    color: var(--text-dim);
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .detail-actions {
