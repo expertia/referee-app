@@ -1,4 +1,4 @@
-const CACHE_NAME = 'referee-v6';
+const CACHE_NAME = 'referee-v7';
 const ASSETS = [
     './',
     './index.html',
