@@ -647,23 +647,28 @@ header h1 {
 /* Roster Quick List in Goal Modal */
 .roster-quick-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .roster-quick-btn {
     background: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 15px;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    min-width: 70px;
-    transition: border-color 0.15s;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
 }
 
 .roster-quick-btn:active,
@@ -676,12 +681,13 @@ header h1 {
 .roster-quick-btn .jersey-num {
     font-size: 18px;
     font-weight: 700;
+    min-width: 32px;
+    text-align: center;
 }
 
 .roster-quick-btn .player-short-name {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
+    font-size: 15px;
+    color: var(--text);
 }
 
 /* Roster List */

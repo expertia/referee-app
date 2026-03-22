@@ -455,7 +455,7 @@ function openGoalModal(team) {
             .map(p => `
                 <button class="roster-quick-btn" data-player-id="${p.id}" data-jersey="${p.defaultJersey || ''}">
                     <span class="jersey-num">${p.defaultJersey || '?'}</span>
-                    <span class="player-short-name">${p.name.split(' ').pop()}</span>
+                    <span class="player-short-name">${p.name}</span>
                 </button>
             `).join('');
 
