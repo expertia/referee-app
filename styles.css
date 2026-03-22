@@ -616,15 +616,10 @@ header h1 {
     padding: 24px 20px 32px;
     width: 100%;
     max-width: 400px;
-    max-height: calc(var(--vh, 100vh) * 0.8);
-    overflow-y: auto;
+    max-height: calc(var(--vh, 100vh) * 0.85);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-}
-
-.modal-content .roster-quick-list {
-    flex-shrink: 1;
-    min-height: 0;
 }
 
 .modal-content h2 {
@@ -656,7 +651,8 @@ header h1 {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 320px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -695,6 +691,13 @@ header h1 {
 .roster-quick-btn .player-short-name {
     font-size: 15px;
     color: var(--text);
+}
+
+#goal-roster-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Lineup Section */
